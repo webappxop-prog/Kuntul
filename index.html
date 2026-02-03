@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xonepanel | Login</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+body{
+  background:#000;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  padding:10px;
+}
+canvas#bg{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:-1;
+  /* Background dengan gambar dari folder images */
+  background: url('images/server-update.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+.card{
+  background:rgba(20,20,20,0.85);
+  border:1px solid #ffffff;
+  border-radius:15px;
+  padding:30px;
+  width:100%;
+  max-width:350px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(255,255,255,0.1);
+  position:relative;
+  z-index:1;
+}
+.card img.avatar{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #ffffff;
+  margin-bottom:20px;
+}
+.card h2{color:#ffffff;margin-bottom:20px;}
+.form-group{
+  margin-bottom:15px;
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:8px;
+  padding:0 10px;
+  background:rgba(40,40,40,0.8);
+  height:40px;
+}
+.form-group input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:#fff;
+  font-size:14px;
+  padding-left:10px;
+}
+.form-group .icon{
+  color:#ffffff;
+  font-size:16px;
+}
+.form-group input:focus + .icon{
+  color:#cccccc;
+}
+button{
+  width:100%;
+  padding:12px;
+  background:linear-gradient(90deg,#333,#555);
+  border:none;
+  border-radius:8px;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:8px;
+  box-shadow:0 0 15px rgba(255,255,255,0.1);
+  transition:0.2s;
+  font-size:15px;
+}
+button:hover{background:linear-gradient(90deg,#555,#333);}
+button:disabled{background:#222;box-shadow:none;cursor:not-allowed;}
+button.buy-access{
+  background:linear-gradient(90deg,#333,#555);
+  margin-top:10px;
+}
+button.buy-access:hover{background:linear-gradient(90deg,#333,#555);}
+.result{
+  margin-top:12px;
+  padding:10px;
+  border-radius:8px;
+  font-size:14px;
+  display:none;
+  text-align:left;
+  line-height:1.4em;
+}
+.result.success{background:rgba(255,255,255,0.1);color:#ffffff;border:1px solid rgba(255,255,255,0.3);}
+.result.error{background:rgba(255,255,255,0.1);color:#ff6b6b;border:1px solid rgba(255,255,255,0.3);}
+
+/* Styling untuk teks di bawah kotak */
+.credits {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+.panel-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+  letter-spacing: 1px;
+}
+.author-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+@media (max-width:400px){
+  .card{padding:20px;}
+  input,button{font-size:13px;padding:10px;}
+  .card h2{font-size:18px;}
+  .card img.avatar{width:80px;height:80px;}
+  .credits {
+    margin-top: 20px;
+    font-size: 13px;
+  }
+  .panel-name {
+    font-size: 16px;
+  }
+  .author-name {
+    font-size: 11px;
+  }
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<div class="card">
+  <!-- Avatar juga menggunakan gambar dari folder images -->
+  <img class="avatar" src="images/server-update.jpg" alt="Avatar">
+  
+  <h2><i class="fa-solid fa-lock"></i> Xonepanel</h2>
+  <form id="loginForm">
+    <div class="form-group">
+      <i class="fas fa-user icon"></i>
+      <input type="text" id="username" placeholder="Nama belakang" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <i class="fas fa-lock icon"></i>
+      <input type="password" id="password" placeholder="Kata sandi" autocomplete="off">
+    </div>
+    <button id="loginBtn" type="submit"><i class="fa-solid fa-unlock"></i> Login</button>
+    <button class="buy-access" type="button" onclick="openWhatsApp()"><i class="fa-solid fa-shopping-cart"></i> Order panel</button>
+  </form>
+  <div id="result" class="result"></div>
+  
+  <!-- Tambahan: Nama Xonepanel dan By: Gunz -->
+  <div class="credits">
+    <div class="panel-name">Xonepanel</div>
+    <div class="author-name">By: Gunz</div>
+  </div>
+</div>
+
+<script>
+/* === ANIMASI BACKGROUND PARTICLES === */
+const canvas = document.getElementById("bg"), ctx = canvas.getContext("2d");
+function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+let pts = [];
+for(let i=0;i<60;i++){
+  pts.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    vx: (Math.random()-0.5)*0.6,
+    vy: (Math.random()-0.5)*0.6
+  });
+}
+function anim(){
+  // Tidak perlu clearRect karena canvas sudah memiliki background gambar
+  // Partikel akan digambar di atas background
+  for(let i=0;i<pts.length;i++){
+    const p = pts[i]; p.x += p.vx; p.y += p.vy;
+    if(p.x<0||p.x>canvas.width) p.vx *= -1;
+    if(p.y<0||p.y>canvas.height) p.vy *= -1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fillStyle="rgba(255,255,255,0.00)"; ctx.fill();
+    for(let j=i+1;j<pts.length;j++){
+      const q = pts[j]; const dx=p.x-q.x, dy=p.y-q.y, dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.strokeStyle="rgba(255,255,255,0.00)"; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(anim);
+}
+anim();
+window.addEventListener("resize", resizeCanvas);
+
+/* === LOGIN === */
+if(localStorage.getItem('authToken')) window.location.href='index.html';
+
+document.getElementById('loginForm').addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  const username=document.getElementById('username').value.trim();
+  const password=document.getElementById('password').value.trim();
+  const resultDiv=document.getElementById('result');
+  const loginBtn=document.getElementById('loginBtn');
+
+  if(!username||!password) return showResult('Username and password cannot be empty.','error');
+
+  loginBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+  loginBtn.disabled=true; resultDiv.style.display='none';
+
+  try{
+    const res=await fetch('/api/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username,password})
+    });
+    const data=await res.json();
+
+    if(data.success){
+      localStorage.setItem('authToken',data.token);
+      showResult('Login successful!','success');
+      setTimeout(()=>{window.location.href='index.html';},1500);
+    }else showResult(`${data.message}`,'error');
+  }catch(err){
+    console.error('Login error:',err);
+    showResult('Server error. Please try again.','error');
+  }finally{
+    loginBtn.innerHTML='<i class="fas fa-home"></i> MENGAKSES';
+    loginBtn.disabled=false;
+  }
+});
+
+/* === FUNGSI WHATSAPP (Langsung ke WhatsApp) === */
+function openWhatsApp() {
+  const phoneNumber = "6283852508654";
+  const message = encodeURIComponent("Halo, saya ingin membeli akses SKYLOST");
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+  
+  // Tampilkan notifikasi
+  showResult('Membuka WhatsApp untuk pembelian akses...', 'success');
+  
+  // Buka WhatsApp
+  setTimeout(() => {
+    window.open(whatsappUrl, '_blank');
+  }, 500);
+}
+
+function showResult(message,type){
+  const resultDiv=document.getElementById('result');
+  resultDiv.innerHTML=message;
+  resultDiv.className=`result ${type}`;
+  resultDiv.style.display='block';
+}
+</script>
+</body>
+</html>
